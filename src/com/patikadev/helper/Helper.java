@@ -28,5 +28,36 @@ public class Helper {
         }
         return point;
     }
+
+    public static boolean isFieldEmpty(JTextField field){
+        return field.getText().trim().isEmpty();
+    }
+
+    public static void showMessage(String message){
+        optionPageTr();
+        String msg;
+        String title;
+        switch (message){
+            case "fill":
+                msg="Lütfen alanları eksiksiz doldurun!";
+                title="Mesaj";
+                break;
+            case "done":
+                msg="İşlem Başarılı";
+                title="Sonuç";
+                break;
+            case "error":
+                msg="İşlem esnasında bir hata oluştu!";
+                title="Error";
+            default:
+                msg=message;
+                title="Mesaj";
+        }
+        JOptionPane.showMessageDialog(null,msg,title,JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void optionPageTr(){
+        UIManager.put("OptionPane.okButtonText","Tamam");
+    }
 }
 

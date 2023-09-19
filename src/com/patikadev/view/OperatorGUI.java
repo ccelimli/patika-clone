@@ -8,6 +8,8 @@ import com.patikadev.model.User;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class OperatorGUI extends JFrame {
     private JPanel wrapper;
@@ -19,14 +21,24 @@ public class OperatorGUI extends JFrame {
     private JButton btn_logout;
     private JScrollPane scrl_user_list;
     private JTable tbl_user_list;
+    private JPanel pnl_user_form;
+    private JTextField fld_user_name;
+    private JLabel lbl_user_name;
+    private JTextField fld_user_username;
+    private JLabel lbl_user_password;
+    private JPasswordField fld_user_password;
+    private JLabel lbl_user_type;
+    private JComboBox cbx_user_type;
+    private JButton add_user;
     private DefaultTableModel mdl_user_list;
     private Object[] row_user_list;
-    public OperatorGUI(Operator operator){
-        this.operator=operator;
+
+    public OperatorGUI(Operator operator) {
+        this.operator = operator;
 
         add(wrapper);
-        setSize(1000,500);
-        setLocation(Helper.screenCenterPoint("x",getSize()),Helper.screenCenterPoint("y",getSize()));
+        setSize(1000, 500);
+        setLocation(Helper.screenCenterPoint("x", getSize()), Helper.screenCenterPoint("y", getSize()));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle(Config.PROJECT_TITLE);
         setVisible(true);
@@ -34,26 +46,51 @@ public class OperatorGUI extends JFrame {
         lbl_welcome.setText(operator.getName());
 
         //ModelUserList
-        mdl_user_list= new DefaultTableModel();
-        Object[] col_user_list={"ID", "Ad Soyad", "Kullanıcı Adı","Şifre", "Üyelik Tipi"};
+        mdl_user_list = new DefaultTableModel();
+        Object[] col_user_list = {"ID", "Ad Soyad", "Kullanıcı Adı", "Şifre", "Üyelik Tipi"};
         mdl_user_list.setColumnIdentifiers(col_user_list);
-
-        for(User object: User.getList()){
-            Object[] row = new Object[col_user_list.length];
-            row[0] = object.getId();
-            row[1] = object.getName();
-            row[2] = object.getUsername();
-            row[3] = object.getPassword();
-            row[4] = object.getUserType();
-            mdl_user_list.addRow(row);
-        }
+        row_user_list = new Object[col_user_list.length];
+        loadUserModel();
 
         tbl_user_list.setModel(mdl_user_list);
         tbl_user_list.getTableHeader().setReorderingAllowed(false);
+        add_user.addActionListener(e -> {
+            if (Helper.isFieldEmpty(fld_user_name) || Helper.isFieldEmpty(fld_user_username) || Helper.isFieldEmpty(fld_user_password)) {
+                Helper.showMessage("fill");
+            } else {
+                User user = new User();
+                user.setName(fld_user_name.getText());
+                user.setUsername(fld_user_username.getText());
+                user.setPassword(fld_user_password.getText());
+                user.setUserType(cbx_user_type.getSelectedItem().toString());
+
+                if (User.add(user)) {
+                    loadUserModel();
+                    Helper.showMessage("done");
+                } else {
+                    Helper.showMessage("error");
+                }
+            }
+        });
+    }
+
+    public void loadUserModel() {
+        DefaultTableModel clearModel = (DefaultTableModel) tbl_user_list.getModel();
+        clearModel.setRowCount(0);
+
+        for (User object : User.getList()) {
+            int i = 0;
+            row_user_list[i++] = object.getId();
+            row_user_list[i++] = object.getName();
+            row_user_list[i++] = object.getUsername();
+            row_user_list[i++] = object.getPassword();
+            row_user_list[i++] = object.getUserType();
+            mdl_user_list.addRow(row_user_list);
+        }
     }
 
     public static void main(String[] args) {
-        Operator operator=new Operator();
+        Operator operator = new Operator();
         Helper.setLayout();
         operator.setId(2);
         operator.setName("2. Kullanıcı");
@@ -61,7 +98,7 @@ public class OperatorGUI extends JFrame {
         operator.setPassword("111111");
         operator.setUserType("operator");
         DbConnector.getInstance();
-        OperatorGUI operatorGUI=new OperatorGUI(operator);
+        OperatorGUI operatorGUI = new OperatorGUI(operator);
     }
 
 }

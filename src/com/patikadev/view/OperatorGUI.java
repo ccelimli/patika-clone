@@ -7,6 +7,8 @@ import com.patikadev.model.Operator;
 import com.patikadev.model.User;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +32,9 @@ public class OperatorGUI extends JFrame {
     private JLabel lbl_user_type;
     private JComboBox cbx_user_type;
     private JButton add_user;
+    private JLabel lbl_user_id;
+    private JTextField fld_user_id;
+    private JButton btn_user_delete;
     private DefaultTableModel mdl_user_list;
     private Object[] row_user_list;
 
@@ -46,7 +51,16 @@ public class OperatorGUI extends JFrame {
         lbl_welcome.setText(operator.getName());
 
         //ModelUserList
-        mdl_user_list = new DefaultTableModel();
+        mdl_user_list = new DefaultTableModel(){
+            //Tablo üzerinde edit
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                if (column==0){
+                    return false;
+                }
+                return super.isCellEditable(row, column);
+            }
+        };
         Object[] col_user_list = {"ID", "Ad Soyad", "Kullanıcı Adı", "Şifre", "Üyelik Tipi"};
         mdl_user_list.setColumnIdentifiers(col_user_list);
         row_user_list = new Object[col_user_list.length];
@@ -54,6 +68,16 @@ public class OperatorGUI extends JFrame {
 
         tbl_user_list.setModel(mdl_user_list);
         tbl_user_list.getTableHeader().setReorderingAllowed(false);
+
+
+        //Tablodan Seçme
+        tbl_user_list.getSelectionModel().addListSelectionListener(e -> {
+            try{
+                String selected_user_id= tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),0).toString();
+                fld_user_id.setText(selected_user_id);
+            }catch (Exception exception){}
+        });
+
         add_user.addActionListener(e -> {
             if (Helper.isFieldEmpty(fld_user_name) || Helper.isFieldEmpty(fld_user_username) || Helper.isFieldEmpty(fld_user_password)) {
                 Helper.showMessage("fill");
@@ -66,8 +90,22 @@ public class OperatorGUI extends JFrame {
 
                 if (User.add(user)) {
                     loadUserModel();
+                    fld_user_name.setText(null);
+                    fld_user_username.setText(null);
+                    fld_user_password.setText(null);
                     Helper.showMessage("done");
-                } else {
+                }
+            }
+        });
+        btn_user_delete.addActionListener(e -> {
+            if (Helper.isFieldEmpty(fld_user_id)){
+                Helper.showMessage("fill");
+            }else {
+                int user_id=Integer.parseInt(fld_user_id.getText());
+                if (User.delete(user_id)){
+                    Helper.showMessage("done");
+                    loadUserModel();
+                }else {
                     Helper.showMessage("error");
                 }
             }

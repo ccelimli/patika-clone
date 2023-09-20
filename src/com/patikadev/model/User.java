@@ -1,6 +1,7 @@
 package com.patikadev.model;
 
 import com.patikadev.helper.DbConnector;
+import com.patikadev.helper.Helper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,15 +67,15 @@ public class User {
         this.userType = userType;
     }
 
-    public static ArrayList<User> getList(){
-        ArrayList<User> users=new ArrayList<>();
-        String query="SELECT * FROM user";
+    public static ArrayList<User> getList() {
+        ArrayList<User> users = new ArrayList<>();
+        String query = "SELECT * FROM user";
         User object;
         try {
-            Statement statement= DbConnector.getInstance().createStatement();
-            ResultSet resultSet= statement.executeQuery(query);
-            while (resultSet.next()){
-                object= new User();
+            Statement statement = DbConnector.getInstance().createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                object = new User();
                 object.setId(resultSet.getInt("id"));
                 object.setName(resultSet.getString("name"));
                 object.setUsername(resultSet.getString("username"));
@@ -83,7 +84,6 @@ public class User {
 
                 users.add(object);
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -91,15 +91,59 @@ public class User {
         return users;
     }
 
-    public static boolean add(User user){
-        String query= "INSERT INTO user(name, username, password, user_type) VALUES (?,?,?,?)";
+    public static boolean add(User user) {
+        String query = "INSERT INTO user(name, username, password, user_type) VALUES (?,?,?,?)";
+        User findUser = User.getFetch(user.getUsername());
+        if (findUser != null) {
+            Helper.showMessage("Kayıtlı kullanıcı adı!");
+            return false;
+        }
         try {
-            PreparedStatement preparedStatement=DbConnector.getInstance().prepareStatement(query);
+            PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
             preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2,user.getUsername());
-            preparedStatement.setString(3,user.getPassword());
-            preparedStatement.setString(4,user.getUserType());
-            return preparedStatement.executeUpdate() != -1;
+            preparedStatement.setString(2, user.getUsername());
+            preparedStatement.setString(3, user.getPassword());
+            preparedStatement.setString(4, user.getUserType());
+            int response = preparedStatement.executeUpdate();
+            if (response == -1) {
+                Helper.showMessage("error");
+            }
+            return response != -1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static User getFetch(String username) {
+        User object = null;
+        String query = "SELECT * FROM user WHERE username = ?";
+
+        try {
+            PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                object = new User();
+                object.setId(resultSet.getInt("id"));
+                object.setName(resultSet.getString("name"));
+                object.setUsername(resultSet.getString("username"));
+                object.setPassword(resultSet.getString("password"));
+                object.setUserType(resultSet.getString("user_type"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return object;
+    }
+
+    public static boolean delete(int id) {
+        String query = "DELETE FROM user WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            int response = preparedStatement.executeUpdate();
+            return response != -1;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

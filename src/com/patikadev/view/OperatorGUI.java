@@ -7,11 +7,11 @@ import com.patikadev.model.Operator;
 import com.patikadev.model.User;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class OperatorGUI extends JFrame {
     private JPanel wrapper;
@@ -35,6 +35,14 @@ public class OperatorGUI extends JFrame {
     private JLabel lbl_user_id;
     private JTextField fld_user_id;
     private JButton btn_user_delete;
+    private JPanel pnl_search;
+    private JTextField fld_src_name;
+    private JLabel lbl_src_name;
+    private JLabel lbl_src_username;
+    private JTextField fld_src_username;
+    private JLabel lbl_src_user_type;
+    private JComboBox cbx_src_user_type;
+    private JButton btn_src_user;
     private DefaultTableModel mdl_user_list;
     private Object[] row_user_list;
 
@@ -75,7 +83,23 @@ public class OperatorGUI extends JFrame {
             try{
                 String selected_user_id= tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),0).toString();
                 fld_user_id.setText(selected_user_id);
-            }catch (Exception exception){}
+            }catch (Exception ignored){}
+        });
+
+        tbl_user_list.getModel().addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE){
+                User user= new User();
+                user.setId(Integer.parseInt(tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),0).toString()));
+                user.setName(tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),1).toString());
+                user.setUsername(tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),2).toString());
+                user.setPassword(tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),3).toString());
+                user.setUserType(tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(),4).toString());
+
+                if(User.update(user)){
+                    Helper.showMessage("done");
+                }
+                loadUserModel();
+            }
         });
 
         add_user.addActionListener(e -> {
@@ -110,6 +134,18 @@ public class OperatorGUI extends JFrame {
                 }
             }
         });
+        btn_src_user.addActionListener(e -> {
+            String name=fld_src_name.getText();
+            String username=fld_src_username.getText();
+            String type=cbx_src_user_type.getSelectedItem().toString();
+            String query=User.searchQuery(name,username,type);
+            loadUserModel(User.searchUserList(query));
+        });
+
+        //Button Cikis Yap
+        btn_logout.addActionListener(e -> {
+            dispose();
+        });
     }
 
     public void loadUserModel() {
@@ -117,6 +153,21 @@ public class OperatorGUI extends JFrame {
         clearModel.setRowCount(0);
 
         for (User object : User.getList()) {
+            int i = 0;
+            row_user_list[i++] = object.getId();
+            row_user_list[i++] = object.getName();
+            row_user_list[i++] = object.getUsername();
+            row_user_list[i++] = object.getPassword();
+            row_user_list[i++] = object.getUserType();
+            mdl_user_list.addRow(row_user_list);
+        }
+    }
+
+    public void loadUserModel(ArrayList<User> users) {
+        DefaultTableModel clearModel = (DefaultTableModel) tbl_user_list.getModel();
+        clearModel.setRowCount(0);
+
+        for (User object : users) {
             int i = 0;
             row_user_list[i++] = object.getId();
             row_user_list[i++] = object.getName();

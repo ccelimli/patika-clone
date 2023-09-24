@@ -148,4 +148,59 @@ public class User {
             throw new RuntimeException(e);
         }
     }
+
+    public static boolean update(User user){
+        String query="UPDATE user SET name=?, username=?, password=?, user_type=? WHERE id=?";
+        User findUser = User.getFetch(user.getUsername());
+        if ((findUser != null) && (findUser.getId() != user.getId())) {
+            Helper.showMessage("Kayıtlı kullanıcı adı!");
+            return false;
+        }
+        try {
+            PreparedStatement preparedStatement= DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setString(1,user.name);
+            preparedStatement.setString(2,user.username);
+            preparedStatement.setString(3,user.password);
+            preparedStatement.setString(4,user.userType);
+            preparedStatement.setInt(5,user.id);
+            return preparedStatement.executeUpdate()!=-1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ArrayList<User> searchUserList(String query){
+        ArrayList<User> users = new ArrayList<>();
+        User object;
+        try {
+            Statement statement = DbConnector.getInstance().createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                object = new User();
+                object.setId(resultSet.getInt("id"));
+                object.setName(resultSet.getString("name"));
+                object.setUsername(resultSet.getString("username"));
+                object.setPassword(resultSet.getString("password"));
+                object.setUserType(resultSet.getString("user_type"));
+
+                users.add(object);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return users;
+    }
+
+    public static String searchQuery(String name, String username, String userType){
+        String query="SELECT * FROM user WHERE username LIKE '%{{username}}%' AND name LIKE '%{{name}}%' AND user_type LIKE '%{{user_type}}%'";
+        query=query.replace("{{username}}",username);
+        query=query.replace("{{name}}",name);
+        query=query.replace("{{user_type}}",userType);
+//        if (!userType.isEmpty()){
+//            query+="AND user_type='{{user_type}}'";
+//            query=query.replace("{{user_type}}",userType);
+//        }
+        return query;
+    }
 }

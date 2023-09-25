@@ -121,6 +121,34 @@ public class OperatorGUI extends JFrame {
         patikaMenu.add(updateMenu);
         patikaMenu.add(deleteMenu);
 
+        //UpdatePatikaGUI
+        updateMenu.addActionListener(e->{
+            int select_id=Integer.parseInt(tbl_patika_list.getValueAt(tbl_patika_list.getSelectedRow(),0).toString());
+            UpdatePatikaGUI updatePatikaGUI= new UpdatePatikaGUI(Patika.getFetch(select_id));
+
+            //Refresh List
+            updatePatikaGUI.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    loadPatikaModel();
+                }
+            });
+        });
+
+        //Delete
+        deleteMenu.addActionListener(e->{
+           if (Helper.confirm("sure")){
+               int select_id=Integer.parseInt(tbl_patika_list.getValueAt(tbl_patika_list.getSelectedRow(),0).toString());
+               if(Patika.delete(select_id)){
+                   loadPatikaModel();
+                   Helper.showMessage("done");
+               }
+               else {
+                   Helper.showMessage("error");
+               }
+           }
+        });
+
         mdl_patika_list=new DefaultTableModel();
         Object[] col_patika_list={"ID","Patika Adı"};
         mdl_patika_list.setColumnIdentifiers(col_patika_list);
@@ -166,12 +194,14 @@ public class OperatorGUI extends JFrame {
             if (Helper.isFieldEmpty(fld_user_id)){
                 Helper.showMessage("fill");
             }else {
-                int user_id=Integer.parseInt(fld_user_id.getText());
-                if (User.delete(user_id)){
-                    Helper.showMessage("done");
-                    loadUserModel();
-                }else {
-                    Helper.showMessage("error");
+                if (Helper.confirm("sure")){
+                    int user_id=Integer.parseInt(fld_user_id.getText());
+                    if (User.delete(user_id)){
+                        Helper.showMessage("done");
+                        loadUserModel();
+                    }else {
+                        Helper.showMessage("error");
+                    }
                 }
             }
         });
@@ -245,6 +275,10 @@ public class OperatorGUI extends JFrame {
 
     public static void main(String[] args) {
         Operator operator = new Operator();
+        operator.setId(2);
+        operator.setName("Admin");
+        operator.setPassword("admin");
+        operator.setUserType("Admin");
         Helper.setLayout();
         DbConnector.getInstance();
         OperatorGUI operatorGUI = new OperatorGUI(operator);

@@ -4,13 +4,14 @@ import com.patikadev.helper.Config;
 import com.patikadev.helper.DbConnector;
 import com.patikadev.helper.Helper;
 import com.patikadev.model.Operator;
+import com.patikadev.model.Patika;
 import com.patikadev.model.User;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 public class OperatorGUI extends JFrame {
@@ -43,8 +44,18 @@ public class OperatorGUI extends JFrame {
     private JLabel lbl_src_user_type;
     private JComboBox cbx_src_user_type;
     private JButton btn_src_user;
+    private JPanel pnl_patika_list;
+    private JScrollPane scrl_patika_list;
+    private JTable tbl_patika_list;
+    private JPanel pnl_patika_add;
+    private JLabel lbl_patika_name;
+    private JTextField fld_patika_name;
+    private JButton btn_patika_add;
     private DefaultTableModel mdl_user_list;
     private Object[] row_user_list;
+    private DefaultTableModel mdl_patika_list;
+    private Object[] row_patika_list;
+    private JPopupMenu patikaMenu;
 
     public OperatorGUI(Operator operator) {
         this.operator = operator;
@@ -69,6 +80,7 @@ public class OperatorGUI extends JFrame {
                 return super.isCellEditable(row, column);
             }
         };
+
         Object[] col_user_list = {"ID", "Ad Soyad", "Kullanıcı Adı", "Şifre", "Üyelik Tipi"};
         mdl_user_list.setColumnIdentifiers(col_user_list);
         row_user_list = new Object[col_user_list.length];
@@ -99,6 +111,35 @@ public class OperatorGUI extends JFrame {
                     Helper.showMessage("done");
                 }
                 loadUserModel();
+            }
+        });
+
+        //ModelPatikaList
+        patikaMenu= new JPopupMenu();
+        JMenuItem updateMenu=new JMenuItem("Güncelle");
+        JMenuItem deleteMenu=new JMenuItem("Sil");
+        patikaMenu.add(updateMenu);
+        patikaMenu.add(deleteMenu);
+
+        mdl_patika_list=new DefaultTableModel();
+        Object[] col_patika_list={"ID","Patika Adı"};
+        mdl_patika_list.setColumnIdentifiers(col_patika_list);
+        row_patika_list= new Object[col_patika_list.length];
+        loadPatikaModel();
+
+        tbl_patika_list.setModel(mdl_patika_list);
+        tbl_patika_list.setComponentPopupMenu(patikaMenu);
+        tbl_patika_list.getTableHeader().setReorderingAllowed(false);
+        tbl_patika_list.getColumnModel().getColumn(0).setMaxWidth(50);
+
+
+        //Mouse Click Pop Menu
+        tbl_patika_list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Point point= e.getPoint();
+                int selected_row=tbl_patika_list.rowAtPoint(point);
+                tbl_patika_list.setRowSelectionInterval(selected_row,selected_row);
             }
         });
 
@@ -146,6 +187,30 @@ public class OperatorGUI extends JFrame {
         btn_logout.addActionListener(e -> {
             dispose();
         });
+        btn_patika_add.addActionListener(e -> {
+            if (Helper.isFieldEmpty(fld_patika_name)){
+                Helper.showMessage("fill");
+            }else{
+                if (Patika.add(fld_patika_name.getText())){
+                    loadPatikaModel();
+                    Helper.showMessage("done");
+                }else {
+                    Helper.showMessage("error");
+                }
+            }
+        });
+    }
+
+    private void loadPatikaModel() {
+        DefaultTableModel clearModel= (DefaultTableModel) tbl_patika_list.getModel();
+        clearModel.setRowCount(0);
+        int i=0;
+        for (Patika patika: Patika.getList()){
+            i=0;
+            row_patika_list[i++]=patika.getId();
+            row_patika_list[i++]=patika.getName();
+            mdl_patika_list.addRow(row_patika_list);
+        }
     }
 
     public void loadUserModel() {
@@ -181,11 +246,6 @@ public class OperatorGUI extends JFrame {
     public static void main(String[] args) {
         Operator operator = new Operator();
         Helper.setLayout();
-        operator.setId(2);
-        operator.setName("2. Kullanıcı");
-        operator.setUsername("seconduser");
-        operator.setPassword("111111");
-        operator.setUserType("operator");
         DbConnector.getInstance();
         OperatorGUI operatorGUI = new OperatorGUI(operator);
     }

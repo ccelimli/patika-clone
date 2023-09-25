@@ -142,8 +142,7 @@ public class User {
         try {
             PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
             preparedStatement.setInt(1, id);
-            int response = preparedStatement.executeUpdate();
-            return response != -1;
+            return preparedStatement.executeUpdate() != -1;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

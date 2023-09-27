@@ -32,7 +32,7 @@ public class OperatorGUI extends JFrame {
     private JPasswordField fld_user_password;
     private JLabel lbl_user_type;
     private JComboBox cbx_user_type;
-    private JButton add_user;
+    private JButton btn_add_user;
     private JLabel lbl_user_id;
     private JTextField fld_user_id;
     private JButton btn_user_delete;
@@ -51,11 +51,25 @@ public class OperatorGUI extends JFrame {
     private JLabel lbl_patika_name;
     private JTextField fld_patika_name;
     private JButton btn_patika_add;
+    private JPanel pnl_course_list;
+    private JScrollPane scrl_course_list;
+    private JTable tbl_course_list;
+    private JPanel pnl_course_add;
+    private JTextField fld_course_name;
+    private JTextField fld_course_language;
+    private JComboBox cbx_course_patika;
+    private JLabel lbl_course_educator;
+    private JLabel lbl_course_patika;
+    private JLabel lbl_course_language;
+    private JLabel lbl_couse_name;
+    private JComboBox cbx_course_educator;
     private DefaultTableModel mdl_user_list;
     private Object[] row_user_list;
     private DefaultTableModel mdl_patika_list;
     private Object[] row_patika_list;
     private JPopupMenu patikaMenu;
+    private DefaultTableModel mdl_course_list;
+    private Object[] row_course_list;
 
     public OperatorGUI(Operator operator) {
         this.operator = operator;
@@ -171,7 +185,17 @@ public class OperatorGUI extends JFrame {
             }
         });
 
-        add_user.addActionListener(e -> {
+        //CourseList
+        mdl_patika_list= new DefaultTableModel();
+        Object[] col_courseList={"ID","Ders Adı", "Programlama Dili", "Patika", "Eğitmen"};
+        mdl_course_list.setColumnIdentifiers(col_courseList);
+        row_course_list= new Object[col_courseList.length];
+
+        tbl_course_list.setModel(mdl_course_list);
+        tbl_course_list.getColumnModel().getColumn(0).setMaxWidth(75);
+        tbl_course_list.getTableHeader().setReorderingAllowed(false);
+
+        btn_add_user.addActionListener(e -> {
             if (Helper.isFieldEmpty(fld_user_name) || Helper.isFieldEmpty(fld_user_username) || Helper.isFieldEmpty(fld_user_password)) {
                 Helper.showMessage("fill");
             } else {

@@ -137,6 +137,29 @@ public class User {
         return object;
     }
 
+    public static User getFetchById(int id) {
+        User object = null;
+        String query = "SELECT * FROM user WHERE id = ?";
+
+        try {
+            PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                object = new User();
+                object.setId(resultSet.getInt("id"));
+                object.setName(resultSet.getString("name"));
+                object.setUsername(resultSet.getString("username"));
+                object.setPassword(resultSet.getString("password"));
+                object.setUserType(resultSet.getString("user_type"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return object;
+    }
+
     public static boolean delete(int id) {
         String query = "DELETE FROM user WHERE id = ?";
         try {

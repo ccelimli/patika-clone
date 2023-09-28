@@ -1,6 +1,13 @@
 package com.patikadev.model;
 
-public class course {
+import com.patikadev.helper.DbConnector;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+public class Course {
     private int id;
     private int user_id;
     private int patika_id;
@@ -10,7 +17,7 @@ public class course {
     private Patika patika;
     private User educator;
 
-    public course(int id, int user_id, int patika_id, String name, String language) {
+    public Course(int id, int user_id, int patika_id, String name, String language) {
         this.id = id;
         this.user_id = user_id;
         this.patika_id = patika_id;
@@ -74,5 +81,28 @@ public class course {
 
     public void setEducator(User educator) {
         this.educator = educator;
+    }
+
+    public static ArrayList<Course> getList() {
+        ArrayList<Course> courseList = new ArrayList<>();
+
+        Course object;
+        try {
+            Statement statement = DbConnector.getInstance().createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM course");
+            while (resultSet.next()) {
+                object = new Course(resultSet.getInt("id"),
+                                    resultSet.getInt("user_id"),
+                                    resultSet.getInt("patika_id"),
+                                    resultSet.getString("name"),
+                                    resultSet.getString("language")
+                                    );
+                courseList.add(object);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return courseList;
     }
 }

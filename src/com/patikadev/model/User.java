@@ -225,4 +225,27 @@ public class User {
 //        }
         return query;
     }
+
+    public static ArrayList<User> getByUserTypeEducator(){
+        ArrayList<User> userList= new ArrayList<>();
+        String query="SELECT * FROM user WHERE user_type='Educator'";
+        User object;
+        try {
+           Statement statement= DbConnector.getInstance().createStatement();
+           ResultSet resultSet= statement.executeQuery(query);
+           while (resultSet.next()){
+               object= new User(resultSet.getInt("Id"),
+                                resultSet.getString("name"),
+                                resultSet.getString("username"),
+                                resultSet.getString("password"),
+                                resultSet.getString("user_type")
+                                );
+               userList.add(object);
+           }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return userList;
+    }
 }

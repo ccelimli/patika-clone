@@ -1,7 +1,9 @@
 package com.patikadev.model;
 
 import com.patikadev.helper.DbConnector;
+import com.patikadev.helper.Helper;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,6 +18,8 @@ public class Course {
 
     private Patika patika;
     private User educator;
+
+    public Course(){}
 
     public Course(int id, int user_id, int patika_id, String name, String language) {
         this.id = id;
@@ -92,11 +96,11 @@ public class Course {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM course");
             while (resultSet.next()) {
                 object = new Course(resultSet.getInt("id"),
-                                    resultSet.getInt("user_id"),
-                                    resultSet.getInt("patika_id"),
-                                    resultSet.getString("name"),
-                                    resultSet.getString("language")
-                                    );
+                        resultSet.getInt("user_id"),
+                        resultSet.getInt("patika_id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("language")
+                );
                 courseList.add(object);
             }
 
@@ -104,5 +108,24 @@ public class Course {
             throw new RuntimeException(e);
         }
         return courseList;
+    }
+
+    public static boolean add(Course course) {
+        String query = "INSERT INTO course(user_id, patika_id, name, language) VALUES (?,?,?,?)";
+        try {
+            PreparedStatement preparedStatement= DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setInt(1,course.user_id);
+            preparedStatement.setInt(2,course.patika_id);
+            preparedStatement.setString(3, course.name);
+            preparedStatement.setString(4, course.language);
+            int response=preparedStatement.executeUpdate();
+            if (response==-1){
+                Helper.showMessage("error");
+            }
+            return response!=-1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

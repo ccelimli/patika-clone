@@ -65,6 +65,7 @@ public class OperatorGUI extends JFrame {
     private JLabel lbl_course_language;
     private JLabel lbl_couse_name;
     private JComboBox cbx_course_educator;
+    private JButton btn_course_add;
     private DefaultTableModel mdl_user_list;
     private Object[] row_user_list;
     private DefaultTableModel mdl_patika_list;
@@ -127,6 +128,7 @@ public class OperatorGUI extends JFrame {
                     Helper.showMessage("done");
                 }
                 loadUserModel();
+                loadEducatorCombo();
             }
         });
 
@@ -194,7 +196,7 @@ public class OperatorGUI extends JFrame {
         Object[] col_courseList={"ID","Ders Adı", "Programlama Dili", "Patika", "Eğitmen"};
         mdl_course_list.setColumnIdentifiers(col_courseList);
         row_course_list= new Object[col_courseList.length];
-        loadCourseList();
+        loadCourseModel();
         tbl_course_list.setModel(mdl_course_list);
         tbl_course_list.getColumnModel().getColumn(0).setMaxWidth(75);
         tbl_course_list.getTableHeader().setReorderingAllowed(false);
@@ -214,6 +216,7 @@ public class OperatorGUI extends JFrame {
 
                 if (User.add(user)) {
                     loadUserModel();
+                    loadEducatorCombo();
                     fld_user_name.setText(null);
                     fld_user_username.setText(null);
                     fld_user_password.setText(null);
@@ -230,6 +233,7 @@ public class OperatorGUI extends JFrame {
                     if (User.delete(user_id)){
                         Helper.showMessage("done");
                         loadUserModel();
+                        loadEducatorCombo();
                     }else {
                         Helper.showMessage("error");
                     }
@@ -261,9 +265,28 @@ public class OperatorGUI extends JFrame {
                 }
             }
         });
+        btn_course_add.addActionListener(e -> {
+            Item patikaIten= (Item) cbx_course_patika.getSelectedItem();
+            Item userItem= (Item) cbx_course_educator.getSelectedItem();
+            if (Helper.isFieldEmpty(fld_course_name)||Helper.isFieldEmpty(fld_course_language)){
+                Helper.showMessage("fill");
+            }else {
+                Course course= new Course();
+                course.setUser_id(userItem.getKey());
+                course.setPatika_id(patikaIten.getKey());
+                course.setName(fld_course_name.getText());
+                course.setLanguage(fld_course_language.getText());
+                if (Course.add(course)){
+                    loadCourseModel();
+                    Helper.showMessage("done");
+                }else{
+                    Helper.showMessage("error");
+                }
+            }
+        });
     }
 
-    private void loadCourseList() {
+    private void loadCourseModel() {
         DefaultTableModel clearModel=(DefaultTableModel) tbl_course_list.getModel();
         clearModel.setRowCount(0);
         int i=0;

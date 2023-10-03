@@ -129,6 +129,7 @@ public class OperatorGUI extends JFrame {
                 }
                 loadUserModel();
                 loadEducatorCombo();
+                loadCourseModel();
             }
         });
 
@@ -150,6 +151,7 @@ public class OperatorGUI extends JFrame {
                 public void windowClosed(WindowEvent e) {
                     loadPatikaModel();
                     loadPatikaCombo();
+                    loadPatikaModel();
                 }
             });
         });
@@ -161,6 +163,8 @@ public class OperatorGUI extends JFrame {
                if(Patika.delete(select_id)){
                    loadPatikaModel();
                    loadPatikaCombo();
+                   loadCourseModel();
+
                    Helper.showMessage("done");
                }
                else {
@@ -234,6 +238,7 @@ public class OperatorGUI extends JFrame {
                         Helper.showMessage("done");
                         loadUserModel();
                         loadEducatorCombo();
+                        loadCourseModel();
                     }else {
                         Helper.showMessage("error");
                     }
@@ -279,6 +284,8 @@ public class OperatorGUI extends JFrame {
                 if (Course.add(course)){
                     loadCourseModel();
                     Helper.showMessage("done");
+                    fld_course_name.setText(null);
+                    fld_course_language.setText(null);
                 }else{
                     Helper.showMessage("error");
                 }

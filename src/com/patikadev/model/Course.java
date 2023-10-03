@@ -126,6 +126,39 @@ public class Course {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public static ArrayList<Course> getListByUser(int user_id) {
+        ArrayList<Course> courseList = new ArrayList<>();
+
+        Course object;
+        try {
+            Statement statement = DbConnector.getInstance().createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM course WHERE id="+user_id);
+            while (resultSet.next()) {
+                object = new Course(resultSet.getInt("id"),
+                        resultSet.getInt("user_id"),
+                        resultSet.getInt("patika_id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("language")
+                );
+                courseList.add(object);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return courseList;
+    }
+
+    public static boolean delete(int id) {
+        String query = "DELETE FROM course WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            return preparedStatement.executeUpdate() != -1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

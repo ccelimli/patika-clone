@@ -162,6 +162,10 @@ public class User {
 
     public static boolean delete(int id) {
         String query = "DELETE FROM user WHERE id = ?";
+        ArrayList<Course> courses=Course.getListByUser(id);
+        for (Course course: courses){
+            Course.delete(course.getId());
+        }
         try {
             PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
             preparedStatement.setInt(1, id);

@@ -137,6 +137,33 @@ public class User {
         return object;
     }
 
+    public static User getFetch(String username, String password) {
+        User object = null;
+        String query = "SELECT * FROM user WHERE username = ? AND password = ?";
+
+        try {
+            PreparedStatement preparedStatement = DbConnector.getInstance().prepareStatement(query);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2,password);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                switch (resultSet.getString("user_type")){
+                    case "Operator"->object= new Operator();
+                    default -> object=new User();
+                }
+                object.setId(resultSet.getInt("id"));
+                object.setName(resultSet.getString("name"));
+                object.setUsername(resultSet.getString("username"));
+                object.setPassword(resultSet.getString("password"));
+                object.setUserType(resultSet.getString("user_type"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return object;
+    }
+
     public static User getFetchById(int id) {
         User object = null;
         String query = "SELECT * FROM user WHERE id = ?";

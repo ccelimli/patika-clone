@@ -134,7 +134,7 @@ public class Course {
         Course object;
         try {
             Statement statement = DbConnector.getInstance().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM course WHERE id="+user_id);
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM course WHERE user_id="+user_id);
             while (resultSet.next()) {
                 object = new Course(resultSet.getInt("id"),
                         resultSet.getInt("user_id"),
